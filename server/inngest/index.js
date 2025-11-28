@@ -74,4 +74,4 @@ const syncUserLogout = inngest.createFunction(
 );
 
 // Export functions
-export const functions = [syncUserCreation, syncUserDeletion, syncUserUpdation];
+export const functions = [syncUserCreation, syncUserDeletion, syncUserUpdation, syncUserLogin, syncUserLogout];
