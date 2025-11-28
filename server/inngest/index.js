@@ -72,9 +72,8 @@ const syncWorkspaceCreation = inngest.createFunction(
   async ({ event }) => {
     const org = event.data;
 
-    const ownerId =
-      org.membership?.created_by ||
-      org.membership?.public_user_data?.user_id;
+    // FIXED → Correct ownerId mapping
+    const ownerId = org.membership?.public_user_data?.user_id;
 
     if (!ownerId) {
       console.error("❌ ownerId missing in Clerk organization event");
