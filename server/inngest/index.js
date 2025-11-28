@@ -50,5 +50,28 @@ const syncUserUpdation = inngest.createFunction(
   }
 );
 
+const syncUserLogin = inngest.createFunction(
+  { id: "sync-user-login" },
+  { event: "clerk/session.created" },
+  async ({ event }) => {
+    const { data } = event;
+    console.log("🔵 User Logged In:", data.user_id);
+
+    // optional DB tracking future
+    // await prisma.loginLogs.create({ data: { userId: data.user_id, type: "login" } });
+  }
+);
+
+// ====================== USER LOGOUT ======================
+const syncUserLogout = inngest.createFunction(
+  { id: "sync-user-logout" },
+  { event: "clerk/session.ended" },
+  async ({ event }) => {
+    const { data } = event;
+    console.log("🟠 User Logged Out:", data.user_id);
+
+  }
+);
+
 // Export functions
 export const functions = [syncUserCreation, syncUserDeletion, syncUserUpdation];
