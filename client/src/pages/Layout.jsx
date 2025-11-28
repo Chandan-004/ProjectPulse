@@ -21,12 +21,11 @@ const Layout = () => {
     }, [dispatch])
 
     useEffect(() => {
-        // FIX 1: Check !loading to prevent double fetching
-        // FIX 2: Use user?.id instead of whole user object to prevent unnecessary re-runs
-        if (isLoaded && user && workspaces.length === 0 && !loading) {
-            dispatch(fetchWorkspaces({ getToken }))
+        if (isLoaded && user) {
+            dispatch(fetchWorkspaces({ getToken }));
         }
-    }, [user?.id, isLoaded, workspaces.length]) // Changed dependencies
+    }, [user?.id, isLoaded]);
+
 
     if (!isLoaded) {
         return (
