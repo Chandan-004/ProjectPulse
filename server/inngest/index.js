@@ -70,25 +70,35 @@ const syncWorkspaceCreation = inngest.createFunction(
   { id: "sync-workspace-from-clerk" },
   { event: "clerk/organization.created" },
   async ({ event }) => {
-    const { data } = event;
+    const org = event.data;
 
-    await prisma.workspace.create({
+    const ownerId =
+      org.membership?.created_by ||
+      org.membership?.public_user_data?.user_id;
+
+    if (!ownerId) {
+      console.error("❌ ownerId missing in Clerk organization event");
+      return;
+    }
+
+    const workspace = await prisma.workspace.create({
       data: {
-        id: data.id,
-        name: data.name,
-        slug: data.slug,
-        ownerId: data.created_by,
-        image: data.image_url,
+        id: org.id,
+        name: org.name,
+        image: org.logo_url,
+        ownerId,
       },
     });
 
     await prisma.workspaceMember.create({
       data: {
-        userId: data.created_by,
-        workspaceId: data.id,
+        userId: ownerId,
+        workspaceId: org.id,
         role: "ADMIN",
       },
     });
+
+    console.log("✔ Workspace synced from Clerk:", workspace.id);
   }
 );
 
@@ -96,17 +106,20 @@ const syncWorkspaceUpdation = inngest.createFunction(
   { id: "update-workspace-from-clerk" },
   { event: "clerk/organization.updated" },
   async ({ event }) => {
-    const { data } = event;
+    const org = event.data;
+
     await prisma.workspace.update({
-      where: { id: data.id },
+      where: { id: org.id },
       data: {
-        name: data.name,
-        slug: data.slug,
-        image: data.image_url,
+        name: org.name,
+        image: org.logo_url,
       },
     });
+
+    console.log("🟢 Workspace updated:", org.id);
   }
 );
+
 
 const syncWorkspaceDeletion = inngest.createFunction(
   { id: "delete-workspace-with-clerk" },
